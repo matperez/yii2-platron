@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<response>
+    <pg_salt>9938745</pg_salt>
+    <pg_status>ok</pg_status>
+    <pg_payment_system>
+        <pg_name>MIXPLATMTS</pg_name>
+        <pg_description>Оплата со счета мобильного телефона МТС</pg_description>
+        <pg_payment_scenario>offline</pg_payment_scenario>
+        <pg_amount_to_pay>808.67</pg_amount_to_pay>
+        <pg_amount_to_pay_currency>RUB</pg_amount_to_pay_currency>
+        <pg_category>mobile</pg_category>
+    </pg_payment_system>
+    <pg_payment_system>
+        <pg_name>CASH</pg_name>
+        <pg_description>Наличные: Евросеть, ОСМП, Элекснет</pg_description>
+        <pg_payment_scenario>offline</pg_payment_scenario>
+        <pg_amount_to_pay>830.00</pg_amount_to_pay>
+        <pg_amount_to_pay_currency>RUB</pg_amount_to_pay_currency>
+        <pg_category>cash</pg_category>
+        <pg_sub_payment_systems>
+            <pg_sub_payment_system>
+                <pg_sub_name>ELECSNET</pg_sub_name>
+                <pg_sub_description>Elecsnet</pg_sub_description>
+            </pg_sub_payment_system>
+            <pg_sub_payment_system>
+                <pg_sub_name>EUROSET</pg_sub_name>
+                <pg_sub_description>Евросеть</pg_sub_description>
+            </pg_sub_payment_system>
+            <pg_sub_payment_system>
+                <pg_sub_name>QIWI</pg_sub_name>
+                <pg_sub_description>QIWI</pg_sub_description>
+            </pg_sub_payment_system>
+        </pg_sub_payment_systems>
+    </pg_payment_system>
+    <pg_payment_system>
+        <pg_name>WEBMONEYRBANK</pg_name>
+        <pg_description>Система WebMoney</pg_description>
+        <pg_payment_scenario>online</pg_payment_scenario>
+        <pg_amount_to_pay>810.35</pg_amount_to_pay>
+        <pg_amount_to_pay_currency>RUB</pg_amount_to_pay_currency>
+        <pg_category>wallet</pg_category>
+    </pg_payment_system>
+    <pg_payment_system>
+        <pg_name>YANDEXMONEY</pg_name>
+        <pg_description>Система Яндекс-деньги</pg_description>
+        <pg_payment_scenario>online</pg_payment_scenario>
+        <pg_amount_to_pay>812.15</pg_amount_to_pay>
+        36
+        <pg_amount_to_pay_currency>RUB</pg_amount_to_pay_currency>
+        <pg_category>wallet</pg_category>
+    </pg_payment_system>
+    <pg_sig>73daf9d237952f56bd05c602d2878dc2</pg_sig>
+</response>

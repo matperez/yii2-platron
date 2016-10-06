@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<response>
+    <pg_salt>9865</pg_salt>
+    <pg_status>error</pg_status>
+    <pg_error_code>490</pg_error_code>
+    <pg_error_description>this transaction can’t be revoked</pg_error_description>
+    <pg_sig>4df0f9d237952f56bd05c602d2873ed0</pg_sig>
+</response>

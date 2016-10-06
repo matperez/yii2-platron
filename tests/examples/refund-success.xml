@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<response>
+    <pg_salt>9865</pg_salt>
+    <pg_status>ok</pg_status>
+    <pg_sig>48caf9d237952f56bd05c602d28762da</pg_sig>
+</response>

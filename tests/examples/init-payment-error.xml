@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<response>
+    <pg_status>error</pg_status>
+    <pg_error_code>101</pg_error_code>
+    <pg_error_description>Empty merchant</pg_error_description>
+</response>
