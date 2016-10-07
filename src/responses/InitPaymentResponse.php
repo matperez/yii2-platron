@@ -3,7 +3,7 @@ namespace matperez\yii2platron\responses;
 
 use matperez\yii2platron\exceptions\ApiException;
 
-class PaymentResponse
+class InitPaymentResponse
 {
     /**
      * @var ApiResponse

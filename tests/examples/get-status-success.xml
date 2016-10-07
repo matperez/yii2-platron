@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<response>
+    <pg_salt>9865</pg_salt>
+    <pg_status>ok</pg_status>
+    <pg_payment_id>1234567</pg_payment_id>
+    <pg_transaction_status>ok</pg_transaction_status>
+    <pg_can_reject>1</pg_can_reject>
+    <pg_create_date>2009-01-12 10:22:30</pg_create_date>
+    <pg_result_date>2009-01-12 10:25:07</pg_result_date>
+    <pg_payment_system>RUSSIANSTANDARD</pg_payment_system>
+    <pg_card_brand>CA</pg_card_brand>
+    <pg_card_pan>527594******4984</pg_card_pan>
+    <pg_card_hash>022380c107141f7e11f4271d7f6412a715222c32</pg_card_hash>
+    <pg_auth_code>014318</pg_auth_code>
+    <pg_captured>0</pg_captured>
+    <pg_sig>8380d43c7719e6ce48da0c79aa7eb2ba</pg_sig>
+</response>

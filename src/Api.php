@@ -3,19 +3,21 @@ namespace matperez\yii2platron;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use matperez\yii2platron\requests\PaymentSystemListRequest;
-use matperez\yii2platron\requests\RefundRequest;
+use matperez\yii2platron\interfaces\IApi;
+use matperez\yii2platron\requests\StatusRequest;
+use matperez\yii2platron\requests\RevokeRequest;
 use matperez\yii2platron\responses\ApiResponse;
 use matperez\yii2platron\exceptions\ApiException;
-use matperez\yii2platron\requests\PaymentRequest;
-use matperez\yii2platron\responses\PaymentResponse;
-use matperez\yii2platron\responses\PaymentSystemListResponse;
-use matperez\yii2platron\responses\RefundResponse;
+use matperez\yii2platron\requests\InitPaymentRequest;
+use matperez\yii2platron\responses\InitPaymentResponse;
+use matperez\yii2platron\responses\RevokeResponse;
+use matperez\yii2platron\responses\StatusResponse;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\base\Security;
+use yii\helpers\ArrayHelper;
 
-class Api extends Component
+class Api extends Component implements IApi
 {
     const SCRIPT_PS_LIST = 'ps_list.php';
     const SCRIPT_INIT_PAYMENT = 'init_payment.php';
@@ -26,6 +28,34 @@ class Api extends Component
     const CURRENCY_RUB = 'RUB';
     const CURRENCY_USD = 'USD';
     const CURRENCY_EUR = 'EUR';
+
+    const RESULT_ERROR = 0;
+    const RESULT_OK = 1;
+
+    /**
+     * платежная транзакция еще не до конца создана, например, не определена
+     * платежная система. Из этого состояния платеж может перейти только
+     * в состояние pending.
+     */
+    const TRANSACTION_STATUS_OK = 'ok';
+    /**
+     * платежная транзакция создана и ждет оплаты. Из этого состояния платеж
+     * может перейти только в состояния ok или failed.
+     */
+    const TRANSACTION_STATUS_PENDING = 'pending';
+    /**
+     * платеж завершился успешно. Из этого состояния платеж может перейти
+     * только в состояние revoked.
+     */
+    const TRANSACTION_STATUS_PARTIAL = 'partial';
+    /**
+     * платеж не прошел. Это окончательный статус.
+     */
+    const TRANSACTION_STATUS_FAILED = 'failed';
+    /**
+     * платеж прошел успешно, но затем был отозван. Это окончательный статус.
+     */
+    const TRANSACTION_STATUS_REVOKED = 'revokes';
 
     /**
      * @var string
@@ -190,33 +220,6 @@ class Api extends Component
     }
 
     /**
-     * Получение списка платежных систем и цен.
-     *
-     * Если магазин хочет, чтобы покупатель совершал выбор платежной системы на сайте
-     * магазина, он может либо самостоятельно вывести список доступных платежных
-     * систем и рассчитать окончательную цену для каждой ПС с учетом комиссий на основе
-     * либо получать актуальную информацию о списке доступных платежных систем и комиссиях
-     * в автоматическом режиме.
-     *
-     * @param PaymentSystemListRequest $request
-     * @return PaymentSystemListResponse
-     * @throws \yii\base\InvalidParamException
-     * @throws \matperez\yii2platron\exceptions\ApiException
-     */
-    public function getPaymentSystemList(PaymentSystemListRequest $request)
-    {
-        if (!$request->validate()) {
-            throw new ApiException('Invalid payment request: '.var_export($request->errors, true));
-        }
-        $params = array_merge([
-            'pg_merchant_id' => $this->merchantId,
-            'pg_salt' => $this->getSalt(),
-            'pg_testing_mode' => (int) $this->testMode
-        ], $request->getRequestAttributes());
-        return new PaymentSystemListResponse($this->call(self::SCRIPT_PS_LIST, $params));
-    }
-
-    /**
      * Инициализация платежа
      *
      * Для создания платежной транзакции (инициализации платежа) магазин должен выполнить два действия:
@@ -227,12 +230,12 @@ class Api extends Component
      * платежной транзакции и URL для последующего перенаправления покупателя, а затем перенаправить
      * покупателя на этот URL.
      *
-     * @param \matperez\yii2platron\requests\PaymentRequest $request
-     * @return PaymentResponse
+     * @param \matperez\yii2platron\requests\InitPaymentRequest $request
+     * @return InitPaymentResponse
      * @throws \yii\base\InvalidParamException
      * @throws ApiException
      */
-    public function getPaymentUrl(PaymentRequest $request)
+    public function initPayment(InitPaymentRequest $request)
     {
         if (!$request->validate()) {
             throw new ApiException('Invalid payment request: '.var_export($request->errors, true));
@@ -256,7 +259,7 @@ class Api extends Component
             'pg_testing_mode' => (int) $this->testMode,
         ], $request->getRequestAttributes());
 
-        return new PaymentResponse($this->call(self::SCRIPT_INIT_PAYMENT, $params));
+        return new InitPaymentResponse($this->call(self::SCRIPT_INIT_PAYMENT, $params));
     }
 
     /**
@@ -267,20 +270,24 @@ class Api extends Component
      * сбоя связи, а покупатель уже был передан на Success URL, однако статус транзакции магазину еще
      * не известен.
      *
-     * @param integer $paymentId
-     * @return \matperez\yii2platron\responses\ApiResponse
+     * @param StatusRequest $request
+     * @return StatusResponse
+     * @throws \yii\base\InvalidParamException
      * @throws \matperez\yii2platron\exceptions\ApiException
      */
-    public function getPaymentStatus($paymentId)
+    public function getStatus(StatusRequest $request)
     {
-        $defaultParams = [
+        if (!$request->validate()) {
+            throw new ApiException('Invalid get status request: '.var_export($request->errors, true));
+        }
+
+        $params = array_merge([
             'pg_merchant_id' => $this->merchantId,
-            'pg_payment_id' => $paymentId,
             'pg_salt' => $this->getSalt(),
             'pg_testing_mode' => (int) $this->testMode
-        ];
+        ], $request->getRequestAttributes());
 
-        return $this->call(self::SCRIPT_GET_STATUS, $defaultParams);
+        return new StatusResponse($this->call(self::SCRIPT_GET_STATUS, $params));
     }
 
     /**
@@ -291,12 +298,12 @@ class Api extends Component
      * как полную сумму платежа, так и часть суммы. Можно делать несколько частичных возвратов
      * до тех пор, пока общая сумма возвратов не достигнет суммы первоначального платежа.
      *
-     * @param RefundRequest $request
-     * @return RefundResponse
+     * @param RevokeRequest $request
+     * @return RevokeResponse
      * @throws \yii\base\InvalidParamException
      * @throws \matperez\yii2platron\exceptions\ApiException
      */
-    public function refundPayment(RefundRequest $request)
+    public function revoke(RevokeRequest $request)
     {
         if (!$request->validate()) {
             throw new ApiException('Invalid refund request: '.var_export($request->errors, true));
@@ -306,7 +313,7 @@ class Api extends Component
             'pg_salt' => $this->getSalt(),
             'pg_testing_mode' => (int) $this->testMode
         ], $request->getRequestAttributes());
-        return new RefundResponse($this->call(self::SCRIPT_REVOKE, $params));
+        return new RevokeResponse($this->call(self::SCRIPT_REVOKE, $params));
     }
 
     /**
@@ -342,11 +349,24 @@ class Api extends Component
     }
 
     /**
+     * @param $params
+     * @param $script
+     * @return bool
+     * @throws \LogicException
+     */
+    public function checkHash($script, $params)
+    {
+        ksort($params);
+        $sig = ArrayHelper::remove($params, 'pg_sig');
+        return $sig === $this->getSign($script, $params);
+    }
+
+    /**
      * @param string $script
      * @param array $params
      * @return array
      */
-    protected function prepareParams($script, array $params = [])
+    public function prepareParams($script, array $params = [])
     {
         $params = array_filter($params);
         $params['pg_sig'] = $this->getSign($script, $params);

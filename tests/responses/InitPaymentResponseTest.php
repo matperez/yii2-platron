@@ -2,18 +2,18 @@
 namespace matperez\yii2platron\tests\responses;
 
 use matperez\yii2platron\responses\ApiResponse;
-use matperez\yii2platron\responses\PaymentResponse;
+use matperez\yii2platron\responses\InitPaymentResponse;
 use PHPUnit\Framework\TestCase;
 
-class PaymentResponseTest extends TestCase
+class InitPaymentResponseTest extends TestCase
 {
     /**
-     * @var PaymentResponse
+     * @var InitPaymentResponse
      */
     public $success;
 
     /**
-     * @var PaymentResponse
+     * @var InitPaymentResponse
      */
     public $error;
 
@@ -44,12 +44,12 @@ class PaymentResponseTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->success = new PaymentResponse(
+        $this->success = new InitPaymentResponse(
             new ApiResponse(
                 file_get_contents(__DIR__.'/../examples/init-payment-success.xml')
             )
         );
-        $this->error = new PaymentResponse(
+        $this->error = new InitPaymentResponse(
             new ApiResponse(
                 file_get_contents(__DIR__.'/../examples/init-payment-error.xml')
             )

@@ -3,7 +3,7 @@ namespace matperez\yii2platron\requests;
 
 use yii\base\Model;
 
-class RefundRequest extends Model
+class RevokeRequest extends Model
 {
     /**
      * @var float

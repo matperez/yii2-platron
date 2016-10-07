@@ -5,10 +5,11 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use matperez\yii2platron\Api;
 use matperez\yii2platron\exceptions\ApiException;
-use matperez\yii2platron\requests\PaymentRequest;
-use matperez\yii2platron\requests\RefundRequest;
-use matperez\yii2platron\responses\PaymentResponse;
-use matperez\yii2platron\responses\RefundResponse;
+use matperez\yii2platron\interfaces\IApi;
+use matperez\yii2platron\requests\InitPaymentRequest;
+use matperez\yii2platron\requests\RevokeRequest;
+use matperez\yii2platron\responses\InitPaymentResponse;
+use matperez\yii2platron\responses\RevokeResponse;
 use PHPUnit\Framework\TestCase;
 use yii\base\Security;
 
@@ -20,7 +21,7 @@ class ApiTest extends TestCase
     private $client;
 
     /**
-     * @var Api
+     * @var IApi
      */
     private $api;
 
@@ -31,10 +32,10 @@ class ApiTest extends TestCase
 
     public function testItThrowsExceptionOnInvalidPaymentRequest()
     {
-        $request = \Mockery::mock(PaymentRequest::class)->makePartial();
+        $request = \Mockery::mock(InitPaymentRequest::class)->makePartial();
         $request->shouldReceive('validate')->andReturn(false);
         $this->expectException(ApiException::class);
-        $this->api->getPaymentUrl($request);
+        $this->api->initPayment($request);
     }
 
     public function testItReturnsPaymentResponseOnPaymentRequest()
@@ -42,29 +43,29 @@ class ApiTest extends TestCase
         $xml = file_get_contents(__DIR__.'/examples/init-payment-success.xml');
         $guzzleResponse = new Response(200, [], $xml);
         $this->client->shouldReceive('request')->andReturn($guzzleResponse);
-        $request = \Mockery::mock(PaymentRequest::class)->makePartial();
+        $request = \Mockery::mock(InitPaymentRequest::class)->makePartial();
         $request->shouldReceive('validate')->andReturn(true);
         $request->shouldReceive('getRequestAttributes')->andReturn([]);
-        self::assertInstanceOf(PaymentResponse::class, $this->api->getPaymentUrl($request));
+        self::assertInstanceOf(InitPaymentResponse::class, $this->api->initPayment($request));
     }
 
-    public function testItThrowsExceptionOnInvalidRefundRequest()
+    public function testItThrowsExceptionOnInvalidRevokeRequest()
     {
-        $request = \Mockery::mock(RefundRequest::class)->makePartial();
+        $request = \Mockery::mock(RevokeRequest::class)->makePartial();
         $request->shouldReceive('validate')->andReturn(false);
         $this->expectException(ApiException::class);
-        $this->api->refundPayment($request);
+        $this->api->revoke($request);
     }
 
-    public function testItReturnsRefundResponseOnRefundRequest()
+    public function testItReturnsRevokeResponseOnRevokeRequest()
     {
         $xml = file_get_contents(__DIR__.'/examples/refund-success.xml');
         $guzzleResponse = new Response(200, [], $xml);
         $this->client->shouldReceive('request')->andReturn($guzzleResponse);
-        $request = \Mockery::mock(RefundRequest::class)->makePartial();
+        $request = \Mockery::mock(RevokeRequest::class)->makePartial();
         $request->shouldReceive('validate')->andReturn(true);
         $request->shouldReceive('getRequestAttributes')->andReturn([]);
-        self::assertInstanceOf(RefundResponse::class, $this->api->refundPayment($request));
+        self::assertInstanceOf(RevokeResponse::class, $this->api->revoke($request));
     }
 
     protected function setUp()

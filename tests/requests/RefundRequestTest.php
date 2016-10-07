@@ -1,19 +1,19 @@
 <?php
 namespace matperez\yii2platron\tests\requests;
 
-use matperez\yii2platron\requests\RefundRequest;
+use matperez\yii2platron\requests\RevokeRequest;
 use PHPUnit\Framework\TestCase;
 
 class RefundRequestTest extends TestCase
 {
     /**
-     * @var RefundRequest
+     * @var RevokeRequest
      */
     private $request;
 
     public function testItExists()
     {
-        self::assertInstanceOf(RefundRequest::class, $this->request);
+        self::assertInstanceOf(RevokeRequest::class, $this->request);
     }
 
     public function testItRequiresAmount()
@@ -53,6 +53,6 @@ class RefundRequestTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->request = new RefundRequest();
+        $this->request = new RevokeRequest();
     }
 }

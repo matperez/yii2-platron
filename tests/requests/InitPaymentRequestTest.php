@@ -1,19 +1,19 @@
 <?php
 namespace matperez\yii2platron\tests\requests;
 
-use matperez\yii2platron\requests\PaymentRequest;
+use matperez\yii2platron\requests\InitPaymentRequest;
 use PHPUnit\Framework\TestCase;
 
-class PaymentRequestTest extends TestCase
+class InitPaymentRequestTest extends TestCase
 {
     /**
-     * @var PaymentRequest
+     * @var InitPaymentRequest
      */
     private $request;
 
     public function testItExists()
     {
-        self::assertInstanceOf(PaymentRequest::class, $this->request);
+        self::assertInstanceOf(InitPaymentRequest::class, $this->request);
     }
 
     public function testItRequiresOrderId()
@@ -68,6 +68,6 @@ class PaymentRequestTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->request = new PaymentRequest();
+        $this->request = new InitPaymentRequest();
     }
 }

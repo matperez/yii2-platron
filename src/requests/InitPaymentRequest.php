@@ -5,7 +5,7 @@ use matperez\yii2platron\Api;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
 
-class PaymentRequest extends Model
+class InitPaymentRequest extends Model
 {
     /**
      * @var string Описание товара или услуги. Отображается покупателю в процессе
@@ -62,7 +62,7 @@ class PaymentRequest extends Model
     /**
      * @var array
      */
-    public $data = [];
+    public $params = [];
 
     /**
      * @return array
@@ -83,6 +83,7 @@ class PaymentRequest extends Model
             ['userPhone', 'string', 'max' => 14],
             ['userContactEmail', 'string', 'max' => 100],
             ['userContactEmail', 'email'],
+            ['params', 'safe'],
         ];
     }
 
@@ -115,6 +116,6 @@ class PaymentRequest extends Model
             'pg_user_contact_email' => $this->userContactEmail,
             'pg_currency' => $this->currency,
         ];
-        return array_merge($attributes, $this->data);
+        return array_merge($attributes, $this->params);
     }
 }

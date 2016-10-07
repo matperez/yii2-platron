@@ -1,7 +1,7 @@
 <?php
 namespace matperez\yii2platron\responses;
 
-class RefundResponse
+class RevokeResponse
 {
     /**
      * @var ApiResponse

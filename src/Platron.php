@@ -3,16 +3,12 @@
 namespace matperez\yii2platron;
 
 use GuzzleHttp\Client;
+use matperez\yii2platron\interfaces\IApi;
+use matperez\yii2platron\interfaces\IPlatron;
 use yii\base\Component;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
 use yii\helpers\Url;
-use yii\web\ForbiddenHttpException;
-use yii\web\HttpException;
-use yii\web\Response;
-use yiidreamteam\platron\events\GatewayEvent;
 
-class Platron extends Component
+class Platron extends Component implements IPlatron
 {
     /**
      * @var string
@@ -89,12 +85,19 @@ class Platron extends Component
     ];
 
     /**
-     * @var Api
+     * @var array
+     */
+    public $clientConfig = [
+        'class' => Client::class,
+    ];
+
+    /**
+     * @var IApi
      */
     private $_api;
 
     /**
-     * @return Api
+     * @return IApi
      * @throws \yii\base\InvalidParamException
      * @throws \yii\base\InvalidConfigException
      */
@@ -107,16 +110,25 @@ class Platron extends Component
     }
 
     /**
-     * @return Api
+     * @return Client
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected function createClient()
+    {
+        return \Yii::createObject($this->clientConfig);
+    }
+
+    /**
+     * @return IApi
      * @throws \yii\base\InvalidParamException
      * @throws \yii\base\InvalidConfigException
      */
     protected function createApi()
     {
-        /** @var Api $api */
+        /** @var IApi $api */
         $api = \Yii::createObject(array_merge([
             'testMode' => $this->testMode,
-            'client' => new Client(),
+            'client' => $this->createClient(),
             'security' => \Yii::$app->security,
             'secretKey' => $this->secretKey,
             'merchantId' => $this->merchantId,
@@ -130,106 +142,5 @@ class Platron extends Component
             'failureUrl' => $this->failureUrl? Url::to($this->failureUrl, true) : null,
         ], $this->apiConfig));
         return $api;
-    }
-
-    /**
-     * @param array $data
-     * @return bool
-     * @throws HttpException
-     * @throws \yii\db\Exception
-     */
-    public function processResult($data)
-    {
-        $url = $this->resultUrl ? Url::to($this->resultUrl) : \Yii::$app->request->getUrl();
-
-        $response = [
-            'pg_status' => static::STATUS_ERROR,
-            'pg_salt' => ArrayHelper::getValue($data, 'pg_salt'),
-            'pg_description' => 'Оплата не принята',
-        ];
-
-        if (!$this->checkHash($url, $data)) {
-            \Yii::info([Json::encode($data), strtolower("platron_api_check_hash_error")], 'platron');
-            throw new ForbiddenHttpException('Hash error');
-        }
-
-        $event = new GatewayEvent(['gatewayData' => $data]);
-
-        $this->trigger(GatewayEvent::EVENT_PAYMENT_REQUEST, $event);
-        if ($event->handled && ArrayHelper::getValue($data, 'pg_result', static::RESULT_ERROR) == static::RESULT_OK) {
-            $transaction = \Yii::$app->getDb()->beginTransaction();
-            try {
-                $this->trigger(GatewayEvent::EVENT_PAYMENT_SUCCESS, $event);
-                $response = [
-                    'pg_status' => static::STATUS_OK,
-                    'pg_description' => 'Оплата принята'
-                ];
-                \Yii::info([Json::encode($data), strtolower("platron_api_payment_accept"), Log::FORMAT_DEV], 'platron');
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                \Yii::error(['Payment processing error: ' . $e->getMessage(), strtolower("platron_api_error_processing"), Log::FORMAT_DEV], 'platron');
-                throw new HttpException(503, 'Error processing request');
-            }
-        }
-
-        return $this->prepareParams($url, $response);
-    }
-
-    /**
-     * @param string $url
-     * @throws \Exception
-     */
-    public function redirectToPayment($url)
-    {
-        try {
-            \Yii::$app->response->redirect($url)->send();
-        } catch (\Exception $e) {
-            \Yii::info([Json::encode($e), strtolower("platron_api_redirectToPayment"), Log::FORMAT_DEV], 'platron');
-            throw $e;
-        }
-    }
-
-    /**
-     * Generate SIG
-     * @param array $params
-     * @param string $script
-     * @return string
-     * @throws \LogicException
-     */
-    protected function generateSig($script, array $params = [])
-    {
-        if (!$script) {
-            throw new \LogicException('Script name cannot be empty');
-        }
-
-        ksort($params);
-        array_unshift($params, basename($script));
-        array_push($params, $this->secretKey);
-
-        return md5(implode(';', $params));
-    }
-
-    /**
-     * @param $data
-     * @param $scriptName
-     * @return bool
-     * @throws \LogicException
-     */
-    protected function checkHash($scriptName, $data)
-    {
-        ksort($data);
-        $sig = (string)ArrayHelper::remove($data, 'pg_sig');
-        return $sig === $this->generateSig($scriptName, $data);
-    }
-
-    /**
-     * @param array $data
-     */
-    public static function sendXlmResponse($data)
-    {
-        \Yii::$app->response->format = Response::FORMAT_XML;
-        \Yii::$app->response->data = $data;
-        \Yii::$app->response->send();
     }
 }
