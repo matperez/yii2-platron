@@ -3,6 +3,7 @@
 namespace matperez\yii2platron;
 
 use GuzzleHttp\Client;
+use matperez\yii2platron\gateway\ResultResponse;
 use matperez\yii2platron\interfaces\IApi;
 use matperez\yii2platron\interfaces\IPlatron;
 use yii\base\Component;
@@ -97,19 +98,6 @@ class Platron extends Component implements IPlatron
     private $_api;
 
     /**
-     * @return IApi
-     * @throws \yii\base\InvalidParamException
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getApi()
-    {
-        if (!$this->_api) {
-            $this->_api = $this->createApi();
-        }
-        return $this->_api;
-    }
-
-    /**
      * @return Client
      * @throws \yii\base\InvalidConfigException
      */
@@ -142,5 +130,18 @@ class Platron extends Component implements IPlatron
             'failureUrl' => $this->failureUrl? Url::to($this->failureUrl, true) : null,
         ], $this->apiConfig));
         return $api;
+    }
+
+    /**
+     * @return IApi
+     * @throws \yii\base\InvalidParamException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getApi()
+    {
+        if (!$this->_api) {
+            $this->_api = $this->createApi();
+        }
+        return $this->_api;
     }
 }
