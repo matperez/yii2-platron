@@ -1,5 +1,5 @@
 <?php
-namespace matperez\yii2platron\requests;
+namespace matperez\yii2platron\gateway;
 
 use yii\base\Model;
 

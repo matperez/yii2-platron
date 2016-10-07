@@ -67,4 +67,28 @@ $transactionIsComplete = $response->hasStatus(\matperez\yii2platron\Api::TRANSAC
 ```
 
 ### Processing the gateway callbacks
-TBD
+```
+$request = new \matperez\yii2platron\gateway\ResultRequest(Yii::$app->request->post());
+if (!$request->validate()) {
+    throw new \yii\web\BadRequestHttpException('Invalid result request: '.var_export($request->errors, true));
+}
+$transaction = Yii::$app->db->beginTransaction();
+try {
+    $response = new \matperez\yii2platron\gateway\ResultResponse([
+        'status' => \matperez\yii2platron\gateway\ResultResponse::STATUS_OK
+    ]);
+    // do something to commit or reject the payment..
+    $transaction->commit();
+} catch (Exception $e) {
+    $transaction->rollBack();
+    $response->status = \matperez\yii2platron\gateway\ResultResponse::STATUS_ERROR;
+    $response->errorDescription = $e->getMessage();
+}
+try {
+    $data = $platron->getApi()->prepareParams($platron->getApi()->resultUrl, $response->getResponseAttributes());
+} catch (Exception $e) {
+    throw new \yii\web\BadRequestHttpException('Unable to prepare response: '.$e->getMessage(), $e->getCode(), $e);
+}
+Yii::$app->response->format = \yii\web\Response::FORMAT_XML;
+return $data;
+```
