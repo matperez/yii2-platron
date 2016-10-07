@@ -349,10 +349,9 @@ class Api extends Component implements IApi
     }
 
     /**
-     * @param $params
-     * @param $script
+     * @param array $params
+     * @param string $script
      * @return bool
-     * @throws \LogicException
      */
     public function checkHash($script, $params)
     {

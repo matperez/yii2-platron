@@ -60,10 +60,9 @@ interface IApi
     public function revoke(RevokeRequest $request);
 
     /**
-     * @param $params
-     * @param $script
+     * @param array $params
+     * @param string $script
      * @return bool
-     * @throws \LogicException
      */
     public function checkHash($script, $params);
 

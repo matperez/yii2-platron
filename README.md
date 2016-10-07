@@ -2,7 +2,21 @@
 Platron.ru payment system merchant API
 
 ## Installation
-TBD
+The preferred way to install this extension is through composer.
+
+Either run
+
+```
+php composer.phar require --prefer-dist matperez/yii2-platron"
+```
+
+or add
+
+```
+"matperez/yii2-platron": "~0.0.1"
+```
+
+to the require section of your composer.json file.
 
 ## Usage
 
