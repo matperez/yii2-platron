@@ -36,7 +36,7 @@ It is also could be done through the `components` config section.
 
 ### Init payment
 ```
-$response = $platron->getApi()->initPayment(new \matperez\yii2platron\requests\InitPaymentRequest([
+$response = $platron->initPayment(new \matperez\yii2platron\requests\InitPaymentRequest([
     'amount' => 1000,
     'orderId' => 1234,
     'description' => 'amazing goods',
@@ -50,7 +50,7 @@ $redirectUrl = $response->getRedirectUrl();
 
 ### Revoke payment
 ```
-$response = $platron->getApi()->revoke(new \matperez\yii2platron\requests\RevokeRequest([
+$response = $platron->revoke(new \matperez\yii2platron\requests\RevokeRequest([
     'refundAmount' => 1000,
     'paymentId' => 1234,
 ]));
@@ -59,7 +59,7 @@ $transactionIsRevoked = $response->isSuccess();
 
 ### Check payment status
 ```
-$response = $platron->getApi()->getStatus(new \matperez\yii2platron\requests\StatusRequest([
+$response = $platron->getStatus(new \matperez\yii2platron\requests\StatusRequest([
     'payment_id' => 1234,
 ]));
 $responseIsSuccess = $response->isSuccess();
@@ -93,7 +93,7 @@ Gateway callback processing action might look like this:
             $response->errorDescription = $e->getMessage();
         }
         try {
-            $data = $this->platron->getApi()->prepareParams($this->platron->getApi()->resultUrl, $response->getResponseAttributes());
+            $data = $this->platron->prepareParams($_SERVER['REQUEST_URI'], $response->getResponseAttributes());
         } catch (\Exception $e) {
             throw new ServerErrorHttpException('Unable to prepare the response: '.$e->getMessage(), $e->getCode(), $e);
         }
