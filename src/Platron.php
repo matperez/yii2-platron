@@ -129,7 +129,7 @@ class Platron extends Component implements IPlatron, IApi
             'security' => \Yii::$app->security,
             'secretKey' => $this->secretKey,
             'merchantId' => $this->merchantId,
-            'resultUrl' => $this->resultUrl? Url::to($this->failureUrl, true) : null,
+            'resultUrl' => $this->resultUrl? Url::to($this->resultUrl, true) : null,
             'successUrl' => $this->successUrl? Url::to($this->successUrl, true) : null,
             'checkUrl' => $this->checkUrl? Url::to($this->checkUrl, true) : null,
             'refundUrl' => $this->refundUrl? Url::to($this->refundUrl, true) : null,
